@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="/stylesheets/chat.css">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="chat">
+        <div class="container">
+            <div class="row clearfix">
+                <div class="col-lg-12">
+                    <div class="card chat-app">
+                        <div id="plist" class="people-list">
+                            <div class="input-group">
+                                <p class="title">Users List</p>
+                            </div>
+                            <ul class="list-unstyled chat-list mt-2 mb-0">
+                                <% User.forEach(function(u){%>
+                                    <a href=<%='/msg/panale/' +u.username %>>
+                                        <li class="clearfix">
+                                            <img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="avatar">
+                                            <div class="about">
+                                                <div class="name">
+                                                    <%= u.username %>
+                                                </div>
+                                                <!-- <div class="status"> <i class="fa fa-circle offline"></i> left 7 mins ago </div> -->
+                                            </div>
+                                        </li>
+                                    </a>
+                                    <%})%>
+
+
+
+                            </ul>
+                        </div>
+                        <div class="chat">
+                            <div class="chat-header clearfix">
+                                <div class="row">
+                                    <div class="col-lg-6 shao">
+                                        <a href="javascript:void(0);" data-toggle="modal" data-target="#view_info">
+                                            <img src="https://bootdey.com/img/Content/avatar/avatar2.png" alt="avatar">
+                                        </a>
+                                        <div class="chat-about">
+                                            <h6 class="m-b-0">
+                                                <%= chatUser.username %>
+                                            </h6>
+                                            <!-- <small>Last seen: 2 hours ago</small> -->
+                                        </div>
+                                    </div>
+                                    <div class="col float-right"><a href="/logout"><button
+                                                id='Logout'>Logout</button></a>
+                                        <%= loggedInUser.username %>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="chat-history msgpanel">
+                                <% if(chats.length !== 0) { %>
+                                    <% chats.forEach(function(c){%>
+                                        <div class="textcontent">
+                                            <div id="sender" class="chattext"><%= c.msgs %></div>
+                                        </div>
+                                                   
+                                        <% }) %>
+                                        <% }else{ %>
+                                            <div class="textcontent">
+                                                <div id="sender" class="chattext"><%= chats %></div>
+                                            </div>
+                                      <% } %>
+                            </div>
+                            <div id="form">
+                                <form>
+                                    <input type="text" id="text" placeholder="Type your message here.">
+                                    <div id="btn">
+                                        <i class="ri-send-plane-fill"></i>
+                                    </div>
+                                </form>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.4/socket.io.min.js"></script>
+<script>
+    var socket = io();
+    var head = document.querySelector('#head')
+    var text = document.querySelector('#text');
+    var msgpanel = document.querySelector('.msgpanel');
+    var btn = document.querySelector('#btn');
+    var onlinelist = document.querySelector('#onlinelist');
+    var getParams = new URL(window.location.href)
+    var str = getParams.pathname
+    var reciver = str.substr(12)
+    btn.addEventListener('click', function () {
+
+        msgSent();
+    })
+    text.addEventListener('keypress', function (e) {
+        if (e.charCode == 13) {
+            e.preventDefault()
+
+            msgSent();
+        }
+    })
+    text.addEventListener('input', function (e) {
+        console.log(text.value)
+        if (text.value !== '') {
+            console.log('typing')
+        }
+
+    })
+
+    //    socket.on('typing',function(msg){
+    //       setInterval(function(){
+    //         head.innerHTML = `<h2>Tying</h2>`
+    //       },1000)
+
+    //    })
+
+    function msgSent() {
+        if (text.value !== '') {
+            fetch('/msg/loggedinUser')
+            .then(Rawdata => Rawdata.json())
+            .then(data => {
+              let sender = data.loggedInUser.username
+              socket.emit('obj', { msg: text.value, reciver: reciver, sender: sender})
+             text.value = ''
+            })
+           
+        }
+    }
+    socket.on('obj', function (message) {
+        console.log(message)
+        msgpanel.innerHTML += `<div class="textcontent"><div id="sender" class="chattext">${message.msgs}</div></div>`
+    })
+</script>
+
+</html>

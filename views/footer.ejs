@@ -1,0 +1,66 @@
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.4/socket.io.min.js"></script>
+<script>
+var socket = io();
+var head = document.querySelector('#head') 
+var text =  document.querySelector('#text');
+var msgpanel = document.querySelector('.msgpanel');
+var btn = document.querySelector('#btn');
+var onlinelist = document.querySelector('#onlinelist');
+var getParams = new URL(window.location.href)
+var username = getParams.searchParams.get('username')
+//    socket.emit('username',username)
+
+//    socket.on('loggedinUser',function(loggedinUser){
+//        var UserTemplate = ''
+//        for(x in loggedinUser){
+//         UserTemplate += `<div class="user">${loggedinUser[x]}</div>`
+//        }
+//        onlinelist.innerHTML = ''
+//        onlinelist.innerHTML = UserTemplate
+//    })
+
+btn.addEventListener('click',function(){
+
+msgSent();
+})
+text.addEventListener('keypress',function(e){
+if(e.charCode == 13){
+e.preventDefault()
+
+msgSent();
+}
+})
+text.addEventListener('input',function(e){
+console.log(text.value)
+//   if(text.value !== ''){
+//     console.log('typing')
+//   }
+
+})
+
+//    socket.on('typing',function(msg){
+//       setInterval(function(){
+//         head.innerHTML = `<h2>Tying</h2>`
+//       },1000)
+
+//    })
+function msgSent(){
+if(text.value !== ''){
+socket.emit('msg',text.value)
+text.value = ''
+}
+}
+socket.on('msg',function(message){
+msgpanel.innerHTML += `<div class="msg">${message}</div>`
+})
+</script>
+</html>
